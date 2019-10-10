@@ -1,6 +1,6 @@
 package ru.nsunny.nyubustracker.entities;
 import android.util.Log;
-public class ScheduleTime {
+public class ScheduleTime implements Comparable<ScheduleTime>{
     public int hour=-1;
     public int minute=-1;
     public boolean isEmpty=true;
@@ -18,7 +18,7 @@ public class ScheduleTime {
 
                 //convert presented time to military format
                 this.hour = Integer.parseInt(rawHours);
-                if (amPm.toUpperCase().equals("PM"))
+                if (amPm.toUpperCase().equals("PM")&&hour!=12)
                     this.hour += 12;
                 this.minute = Integer.parseInt(rawMinutes);
                 this.isEmpty = false;
@@ -28,7 +28,18 @@ public class ScheduleTime {
             this.isEmpty=true;
         }
     }
+    public ScheduleTime(int hour, int minute){
+        if (hour<0 || hour >24 || minute < 0 || minute>=60){
+            Log.d("FAILED.","Provided time in invalid");
+            this.isEmpty = true;
+        }
+        else{
+            this.isEmpty = false;
+            this.hour = hour;
+            this.minute = minute;
+        }
 
+    }
     public int minuteDiff(ScheduleTime other) throws IllegalArgumentException{
         if(this.isEmpty) throw new IllegalArgumentException("Left function operand (callee) is empty");
         if(other.isEmpty) throw new IllegalArgumentException("Right function operand (argument) is empty");
@@ -53,5 +64,10 @@ public class ScheduleTime {
         result+=minute;
 
         return result;
+    }
+
+    @Override
+    public int compareTo(ScheduleTime other){
+        return this.minuteDiff(other);
     }
 }

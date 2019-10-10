@@ -46,6 +46,33 @@ public class Schedule {
         return result;
     }
 
+    private List<ScheduleTime[]> addToTop(ScheduleTime[] timePair, List<ScheduleTime[]> top, int num, boolean compareByLeaveTime, boolean topEarliest){
+        int elementFromPair = 0;
+        if(!compareByLeaveTime) elementFromPair=1;
+
+        if(top.size()<num) {
+            top.add(timePair);
+        }
+        else{
+            for(ScheduleTime[] pairInEarly : top)
+                if(topEarliest)
+                    if(timePair[elementFromPair].minuteDiff(pairInEarly[elementFromPair]) > 0){
+                        top.remove(pairInEarly);
+                        top.add(0,timePair);
+                        break;
+                    }
+                else{
+                    if(timePair[elementFromPair].minuteDiff(pairInEarly[elementFromPair]) < 0){
+                        top.remove(pairInEarly);
+                        top.add(timePair);
+                        break;
+                    }
+                }
+        }
+        Collections.sort(top,new CompareTimes(elementFromPair));
+        return top;
+    }
+
     public List<List<ScheduleTime[]>> getTimesByArrivalTime (String src, String dest, ScheduleTime timeToArrive, int numEarlier, int numLater) throws IllegalArgumentException{
         List<ScheduleTime[]> allTimes = getAllTimesBetweenAddresses(src,dest);
 
@@ -61,31 +88,10 @@ public class Schedule {
             // this time is earlier than arrival: minuteDiff > 0
             int timeDiff = timeToArrive.minuteDiff(timePair[1]);
             if(timeDiff>0){
-                if(early.size()<numEarlier) {
-                    early.add(timePair);
-                }
-                else{
-                    for(ScheduleTime[] pairInEarly : early)
-                    if(timePair[1].minuteDiff(pairInEarly[1]) > 0){
-                        early.remove(pairInEarly);
-                        early.add(0,timePair);
-                        break;
-                    }
-                }
-                Collections.sort(early,new ComparePairsByLaterArrival());
+                addToTop(timePair,early,numEarlier,false,true);
             }
             else{
-                if(late.size()<numLater) {
-                    late.add(timePair);
-                }
-                else{
-                    for(ScheduleTime[] pairInLate : late)
-                        if(timePair[1].minuteDiff(pairInLate[1]) < 0){
-                            late.remove(pairInLate);
-                            late.add(timePair);
-                        }
-                }
-                Collections.sort(late,new ComparePairsByLaterArrival());
+                addToTop(timePair,late,numLater,false,false);
             }
         }
         List<List<ScheduleTime[]>> earlyAndLate = new ArrayList<List<ScheduleTime[]>>();
@@ -93,10 +99,42 @@ public class Schedule {
         earlyAndLate.add(1,late);
         return earlyAndLate;
     }
-    private class ComparePairsByLaterArrival implements Comparator<ScheduleTime[]>{
+
+    public List<List<ScheduleTime[]>> getTimesByLeaveTime (String src, String dest, ScheduleTime timeToLeave, int numEarlier, int numLater) throws IllegalArgumentException{
+        List<ScheduleTime[]> allTimes = getAllTimesBetweenAddresses(src,dest);
+
+        List<ScheduleTime[]> early = new ArrayList<>(numEarlier);
+        List<ScheduleTime[]> late = new ArrayList<>(numLater);
+
+        for(ScheduleTime[] timePair : allTimes){
+            ScheduleTime departureTime = timePair[0];
+            ScheduleTime arrivalTime = timePair[1];
+            if(departureTime.isEmpty || arrivalTime.isEmpty)
+                continue;
+
+            // this time is earlier than arrival: minuteDiff > 0
+            int timeDiff = timeToLeave.minuteDiff(timePair[1]);
+            if(timeDiff>0){
+                addToTop(timePair,early,numEarlier,true,true);
+            }
+            else{
+                addToTop(timePair,late,numLater,true,false);
+            }
+        }
+        List<List<ScheduleTime[]>> earlyAndLate = new ArrayList<List<ScheduleTime[]>>();
+        earlyAndLate.add(0,early);
+        earlyAndLate.add(1,late);
+        return earlyAndLate;
+    }
+
+    private class CompareTimes implements Comparator<ScheduleTime[]>{
+        public int elementInPair =0;
+        public CompareTimes(int elementInPair){
+            this.elementInPair=elementInPair;
+        }
         @Override
         public int compare(ScheduleTime[]a, ScheduleTime[] b){
-            return a[1].minuteDiff(b[1]);
+            return a[elementInPair].minuteDiff(b[elementInPair]);
         }
     }
 }

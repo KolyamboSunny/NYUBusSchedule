@@ -1,23 +1,27 @@
 package ru.nsunny.nyubustracker;
-import ru.nsunny.nyubustracker.entities.*;
 
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.widget.*;
-
-import android.view.View;
-import android.support.v4.app.DialogFragment;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TimePicker;
 
-
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+
+import ru.nsunny.nyubustracker.entities.GoogleSheetsParser;
+import ru.nsunny.nyubustracker.entities.Schedule;
+import ru.nsunny.nyubustracker.entities.ScheduleTime;
 
 
 public class MainActivity extends AppCompatActivity {
-    TextView mainOutputTextView;
+    //TextView mainOutputTextView;
     Button button_timeToArrive;
     Button button_timeToLeave;
 
@@ -32,12 +36,12 @@ public class MainActivity extends AppCompatActivity {
         ScheduleTime timeToArrive = new ScheduleTime("-");
 
 
-        mainOutputTextView = (TextView)findViewById(R.id.text_output);
+        //mainOutputTextView = (TextView)findViewById(R.id.text_output);
         button_timeToArrive = (Button)findViewById(R.id.button_timeToArrive);
         button_timeToLeave = (Button)findViewById(R.id.button_timeToLeave);
 
         GoogleSheetsParser p = new GoogleSheetsParser();
-        this.schedule = p.parseBusSchedule().get(0);
+        this.schedule = p.parseBusSchedule().get(1);
     }
 
     @Override
@@ -64,20 +68,11 @@ public class MainActivity extends AppCompatActivity {
         updateBusListByArrivalTime();
     }
     private void updateBusListByArrivalTime(){
-            String src ="715 Broadway";
-            String dest = "6 Metrotech Arrival";
-            List<List<ScheduleTime[]>> times = schedule.getTimesByArrivalTime(src,dest,timeToArrive,3,1);
+        String src ="715 Broadway";
+        String dest = "6 Metrotech Arrival";
+        List<List<ScheduleTime[]>> times = schedule.getTimesByArrivalTime(src,dest,timeToArrive,3,1);
 
-            String toPrint ="";
-
-            for(ScheduleTime[] timePair:times.get(0))
-                toPrint+=timePair[0]+" -> "+timePair[1]+"\n";
-
-            toPrint+="\n\n";
-
-            for(ScheduleTime[] timePair:times.get(1))
-                toPrint+=timePair[0]+" -> "+timePair[1]+"\n";
-            mainOutputTextView.setText(toPrint);
+        updateBusListView(times);
     }
 
     public void onTimeToLeaveClick(View view){
@@ -101,19 +96,18 @@ public class MainActivity extends AppCompatActivity {
         String dest ="715 Broadway Arrival";
         List<List<ScheduleTime[]>> times = schedule.getTimesByLeaveTime(src,dest,timeToLeave,1,3);
 
-        String toPrint ="";
-
-        for(ScheduleTime[] timePair:times.get(0))
-            toPrint+=timePair[0]+" -> "+timePair[1]+"\n";
-
-        toPrint+="\n\n";
-
-        for(ScheduleTime[] timePair:times.get(1))
-            toPrint+=timePair[0]+" -> "+timePair[1]+"\n";
-        mainOutputTextView.setText(toPrint);
+        updateBusListView(times);
     }
 
+    private void updateBusListView(List<List<ScheduleTime[]>> earlyAndLate){
+        List<ScheduleTime[]> allTogether = new ArrayList<ScheduleTime[]>();
+        allTogether.addAll(earlyAndLate.get(0));
+        allTogether.addAll(earlyAndLate.get(1));
 
+        BusListAdapter adapter = new BusListAdapter(this, allTogether);
+        ListView listView = (ListView) findViewById(R.id.list_busesOutput);
+        listView.setAdapter(adapter);
+    }
 
 
     public static class TimePickerFragment_Arrival extends DialogFragment implements TimePickerDialog.OnTimeSetListener {

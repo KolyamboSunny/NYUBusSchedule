@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
     List<Route> routes;
     Route selectedRoute;
     RouteSpinnerAdapter spinnerAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,17 +77,31 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
         GoogleSheetsParser p = new GoogleSheetsParser();
         this.schedule = p.parseBusSchedule().get(1);
     }
+
     @Override
     protected void onStart(){
         super.onStart();
+        Calendar calendar = Calendar.getInstance();
+        int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
+        int currentMinute = calendar.get(Calendar.MINUTE);
+        ScheduleTime currentTime = new ScheduleTime(currentHour,currentMinute);
+
+        this.timeToLeave = currentTime;
+        this.timeToArrive = new ScheduleTime("-");
+
+        updateSelectedLeaveTime(currentTime,true);
+    }
+    public void onLeaveNowClick(View view){
 
         Calendar calendar = Calendar.getInstance();
         int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
         int currentMinute = calendar.get(Calendar.MINUTE);
         ScheduleTime currentTime = new ScheduleTime(currentHour,currentMinute);
-        button_timeToLeave.setText(R.string.button_time_now);
 
-        updateSelectedLeaveTime(currentTime,false);
+        this.timeToLeave = currentTime;
+        this.timeToArrive = new ScheduleTime("-");
+
+        updateSelectedLeaveTime(currentTime,true);
     }
 
     //dealing with the menu on top of the screen
@@ -124,7 +139,12 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         this.selectedRoute = routes.get(pos);
-        busListAdapter.clearTimePairs();
+        if(this.timeToArrive.isEmpty && !this.timeToLeave.isEmpty){
+            updateBusListByLeaveTime();
+        }
+        if(!this.timeToArrive.isEmpty && this.timeToLeave.isEmpty){
+            updateBusListByArrivalTime();
+        }
     }
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
@@ -171,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
 
         String src = selectedRoute.getSrc();
         String dest = selectedRoute.getDest();
-        List<List<ScheduleTime[]>> times = schedule.getTimesByLeaveTime(src,dest,timeToLeave,1,3);
+        List<List<ScheduleTime[]>> times = schedule.getTimesByLeaveTime(src,dest,timeToLeave,2,4);
 
         updateBusListView(times);
     }

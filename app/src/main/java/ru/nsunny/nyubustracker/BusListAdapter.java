@@ -24,13 +24,14 @@ public class BusListAdapter extends BaseAdapter {
         this.notifyDataSetChanged();
     }
     public void setTimePairs(List<ScheduleTime[]> listOfTimePairs){
-        this.timePairs = new ArrayList<>(listOfTimePairs);
+        this.timePairs.clear();
+        this.timePairs.addAll(listOfTimePairs);
         this.notifyDataSetChanged();
     }
 
     public BusListAdapter(Activity context, List<ScheduleTime[]> timePairs){
         this.context = context;
-        this.timePairs = timePairs;
+        this.timePairs = new ArrayList<ScheduleTime[]>(timePairs);
     }
     @Override
     public int getCount() {

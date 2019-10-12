@@ -2,17 +2,24 @@ package ru.nsunny.nyubustracker;
 
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.TimePicker;
 
 import java.util.ArrayList;
@@ -20,19 +27,24 @@ import java.util.Calendar;
 import java.util.List;
 
 import ru.nsunny.nyubustracker.entities.GoogleSheetsParser;
+import ru.nsunny.nyubustracker.entities.Route;
 import ru.nsunny.nyubustracker.entities.Schedule;
 import ru.nsunny.nyubustracker.entities.ScheduleTime;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements android.widget.AdapterView.OnItemSelectedListener{
     //TextView mainOutputTextView;
     Button button_timeToArrive;
     Button button_timeToLeave;
 
+    BusListAdapter busListAdapter;
     ScheduleTime timeToArrive;
     ScheduleTime timeToLeave;
     Schedule schedule;
 
+    List<Route> routes;
+    Route selectedRoute;
+    RouteSpinnerAdapter spinnerAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +57,21 @@ public class MainActivity extends AppCompatActivity {
         //mainOutputTextView = (TextView)findViewById(R.id.text_output);
         button_timeToArrive = (Button)findViewById(R.id.button_timeToArrive);
         button_timeToLeave = (Button)findViewById(R.id.button_timeToLeave);
+
+        this.busListAdapter = new BusListAdapter(this);
+        ListView listView = (ListView) findViewById(R.id.list_busesOutput);
+        listView.setAdapter(busListAdapter);
+
+        routes = new ArrayList<Route>();
+        routes.add(new Route("To Tandon","715 Broadway","6 Metrotech Arrival"));
+        routes.add(new Route("From Tandon","6 Metrotech Departure","715 Broadway Arrival"));
+        routes.get(0).setLinkedRoute(routes.get(1));
+        selectedRoute = routes.get(1);
+
+        spinnerAdapter = new RouteSpinnerAdapter(this, routes);
+        Spinner spinner = (Spinner) findViewById(R.id.spinner_route);
+        spinner.setAdapter(spinnerAdapter);
+        spinner.setOnItemSelectedListener(this);
 
         GoogleSheetsParser p = new GoogleSheetsParser();
         this.schedule = p.parseBusSchedule().get(1);
@@ -76,6 +103,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public synchronized void onReverseClick(View view){
+        this.selectedRoute = this.selectedRoute.getLinkedRoute();
+        Spinner spinner = (Spinner) findViewById(R.id.spinner_route);
+        spinner.setSelection(routes.indexOf(selectedRoute));
+        busListAdapter.clearTimePairs();
+    }
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        this.selectedRoute = routes.get(pos);
+        busListAdapter.clearTimePairs();
+    }
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        this.selectedRoute = routes.get(0);
+    }
+
     @Override
     protected void onStart(){
         super.onStart();
@@ -100,8 +143,8 @@ public class MainActivity extends AppCompatActivity {
         updateBusListByArrivalTime();
     }
     private void updateBusListByArrivalTime(){
-        String src ="715 Broadway";
-        String dest = "6 Metrotech Arrival";
+        String src = selectedRoute.getSrc();
+        String dest = selectedRoute.getDest();
         List<List<ScheduleTime[]>> times = schedule.getTimesByArrivalTime(src,dest,timeToArrive,3,1);
 
         updateBusListView(times);
@@ -124,8 +167,8 @@ public class MainActivity extends AppCompatActivity {
     }
     private void updateBusListByLeaveTime(){
 
-        String src = "6 Metrotech Departure";
-        String dest ="715 Broadway Arrival";
+        String src = selectedRoute.getSrc();
+        String dest = selectedRoute.getDest();
         List<List<ScheduleTime[]>> times = schedule.getTimesByLeaveTime(src,dest,timeToLeave,1,3);
 
         updateBusListView(times);
@@ -136,11 +179,45 @@ public class MainActivity extends AppCompatActivity {
         allTogether.addAll(earlyAndLate.get(0));
         allTogether.addAll(earlyAndLate.get(1));
 
-        BusListAdapter adapter = new BusListAdapter(this, allTogether);
+        busListAdapter.setTimePairs(allTogether);
         ListView listView = (ListView) findViewById(R.id.list_busesOutput);
-        listView.setAdapter(adapter);
+        listView.setAdapter(busListAdapter);
+
     }
 
+    private class RouteSpinnerAdapter extends BaseAdapter {
+        private List<Route> routes;
+        private Context context;
+        private LayoutInflater inflater;
+
+
+        public RouteSpinnerAdapter(Context context, List<Route> routes){
+            this.routes = routes;
+            this.context = context;
+            this.inflater = (LayoutInflater.from(context));
+        }
+        @Override
+        public int getCount(){
+            return routes.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return routes.get(position);
+        }
+
+        @Override
+        public long getItemId(int position){
+            return position;
+        }
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            convertView = inflater.inflate(R.layout.route_list_item, null);
+            TextView names = (TextView) convertView.findViewById(R.id.text_routeName);
+            names.setText(routes.get(position).getName());
+            return convertView;
+        }
+    }
 
     public static class TimePickerFragment_Arrival extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
         @Override

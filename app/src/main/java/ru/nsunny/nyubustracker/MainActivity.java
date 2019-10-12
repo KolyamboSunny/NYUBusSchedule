@@ -58,9 +58,9 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
         button_timeToArrive = (Button)findViewById(R.id.button_timeToArrive);
         button_timeToLeave = (Button)findViewById(R.id.button_timeToLeave);
 
-        this.busListAdapter = new BusListAdapter(this);
-        ListView listView = (ListView) findViewById(R.id.list_busesOutput);
-        listView.setAdapter(busListAdapter);
+
+        //ListView listView = (ListView) findViewById(R.id.list_busesOutput);
+        //listView.setAdapter(busListAdapter);
 
         routes = new ArrayList<Route>();
         routes.add(new Route("To Tandon","715 Broadway","6 Metrotech Arrival"));
@@ -75,6 +75,18 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
 
         GoogleSheetsParser p = new GoogleSheetsParser();
         this.schedule = p.parseBusSchedule().get(1);
+    }
+    @Override
+    protected void onStart(){
+        super.onStart();
+
+        Calendar calendar = Calendar.getInstance();
+        int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
+        int currentMinute = calendar.get(Calendar.MINUTE);
+        ScheduleTime currentTime = new ScheduleTime(currentHour,currentMinute);
+        button_timeToLeave.setText(R.string.button_time_now);
+
+        updateSelectedLeaveTime(currentTime,false);
     }
 
     //dealing with the menu on top of the screen
@@ -119,26 +131,17 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
         this.selectedRoute = routes.get(0);
     }
 
-    @Override
-    protected void onStart(){
-        super.onStart();
 
-        Calendar calendar = Calendar.getInstance();
-        int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
-        int currentMinute = calendar.get(Calendar.MINUTE);
-        ScheduleTime currentTime = new ScheduleTime(currentHour,currentMinute);
-
-        updateSelectedLeaveTime(currentTime);
-    }
 
     public void onTimeToArriveClick(View view){
-        DialogFragment newFragment = new TimePickerFragment_Arrival();
+        DialogFragment newFragment = new TimePickerFragment_ArriveBy();
         newFragment.show(getSupportFragmentManager(), "timePicker");
     }
     private void updateSelectedArriveTime(ScheduleTime newTime){
         this.timeToArrive = newTime;
-        this.timeToLeave = new ScheduleTime("-");
         button_timeToArrive.setText(timeToArrive.toString());
+
+        this.timeToLeave = new ScheduleTime("-");
         button_timeToLeave.setText(timeToLeave.toString());
         updateBusListByArrivalTime();
     }
@@ -151,18 +154,17 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
     }
 
     public void onTimeToLeaveClick(View view){
-        Calendar calendar = Calendar.getInstance();
-        int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
-        int currentMinute = calendar.get(Calendar.MINUTE);
-        ScheduleTime currentTime = new ScheduleTime(currentHour,currentMinute);
+        DialogFragment newFragment = new TimePickerFragment_LeaveAt();
+        newFragment.show(getSupportFragmentManager(), "timePicker");
 
-        updateSelectedLeaveTime(currentTime);
     }
-    private void updateSelectedLeaveTime(ScheduleTime newTime){
+    private void updateSelectedLeaveTime(ScheduleTime newTime, boolean updateButtonText){
         this.timeToLeave = newTime;
+        if(updateButtonText == true)
+            button_timeToLeave.setText(timeToLeave.toString());
+
         this.timeToArrive = new ScheduleTime("-");
         button_timeToArrive.setText(timeToArrive.toString());
-        button_timeToLeave.setText(timeToLeave.toString());
         updateBusListByLeaveTime();
     }
     private void updateBusListByLeaveTime(){
@@ -179,10 +181,12 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
         allTogether.addAll(earlyAndLate.get(0));
         allTogether.addAll(earlyAndLate.get(1));
 
-        busListAdapter.setTimePairs(allTogether);
+        if(this.busListAdapter == null)
+            this.busListAdapter = new BusListAdapter(this,allTogether);
+
         ListView listView = (ListView) findViewById(R.id.list_busesOutput);
         listView.setAdapter(busListAdapter);
-
+        busListAdapter.setTimePairs(allTogether);
     }
 
     private class RouteSpinnerAdapter extends BaseAdapter {
@@ -219,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
         }
     }
 
-    public static class TimePickerFragment_Arrival extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
+    public static class TimePickerFragment_ArriveBy extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             // Use the current time as the default values for the picker
@@ -237,6 +241,24 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             MainActivity activity=(MainActivity)getActivity();
             activity.updateSelectedArriveTime(new ScheduleTime(hourOfDay,minute));
+        }
+    }
+    public static class TimePickerFragment_LeaveAt extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the current time as the default values for the picker
+            final Calendar c = Calendar.getInstance();
+            int currentHour = c.get(Calendar.HOUR_OF_DAY);
+            int currentMinute = c.get(Calendar.MINUTE);
+
+            // Create a new instance of TimePickerDialog and return it
+            return new TimePickerDialog(getActivity(), this, currentHour, currentMinute,
+                    DateFormat.is24HourFormat(getActivity()));
+        }
+
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            MainActivity activity=(MainActivity)getActivity();
+            activity.updateSelectedLeaveTime(new ScheduleTime(hourOfDay,minute),true);
         }
     }
 }

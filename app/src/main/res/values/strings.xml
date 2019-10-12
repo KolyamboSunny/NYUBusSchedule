@@ -6,4 +6,8 @@
     <string name="button_add_route">ADD</string>
 
     <string name="title_activity_route">RouteActivity</string>
+
+    <string name="header_leave_at">Leave At:</string>
+    <string name="header_arrive_at">Arrive By:</string>
+    <string name="button_time_now">NOW</string>
 </resources>

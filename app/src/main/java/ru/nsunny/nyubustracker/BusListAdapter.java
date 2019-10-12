@@ -18,18 +18,19 @@ public class BusListAdapter extends BaseAdapter {
     private Activity context;
 
     //to store the list of arrival-departure times
-    private List<ScheduleTime[]> timePairs = new ArrayList<ScheduleTime[]>();
+    private List<ScheduleTime[]> timePairs;
     public void clearTimePairs(){
         timePairs.clear();
         this.notifyDataSetChanged();
     }
     public void setTimePairs(List<ScheduleTime[]> listOfTimePairs){
-        this.timePairs = listOfTimePairs;
+        this.timePairs = new ArrayList<>(listOfTimePairs);
         this.notifyDataSetChanged();
     }
 
-    public BusListAdapter(Activity context){
+    public BusListAdapter(Activity context, List<ScheduleTime[]> timePairs){
         this.context = context;
+        this.timePairs = timePairs;
     }
     @Override
     public int getCount() {

@@ -1,9 +1,8 @@
 package ru.nsunny.nyubustracker.entities;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Schedule {
 
@@ -113,7 +112,7 @@ public class Schedule {
                 continue;
 
             // this time is earlier than arrival: minuteDiff > 0
-            int timeDiff = timeToLeave.minuteDiff(timePair[1]);
+            int timeDiff = timeToLeave.minuteDiff(timePair[0]);
             if(timeDiff>0){
                 addToTop(timePair,early,numEarlier,true,true);
             }

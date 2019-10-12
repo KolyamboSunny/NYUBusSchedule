@@ -32,8 +32,8 @@ public class BusListAdapter extends ArrayAdapter<ScheduleTime[]> {
         TextView departureTimeView = (TextView)listView.findViewById(R.id.text_departure);
         TextView arrivalTimeView = (TextView)listView.findViewById(R.id.text_arrival);
 
-        departureTimeView.setText(listOfTimePairs[0][position].toString());
-        arrivalTimeView.setText(listOfTimePairs[1][position].toString());
+        departureTimeView.setText(listOfTimePairs[position][0].toString());
+        arrivalTimeView.setText(listOfTimePairs[position][1].toString());
 
         return listView;
     }

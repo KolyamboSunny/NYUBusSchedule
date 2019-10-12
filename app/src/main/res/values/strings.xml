@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">NYUBusTracker</string>
+    <string name="app_name">NYU Bus Tracker</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_routes">Edit Routes</string>
+    <string name="header_routes">Routes</string>
+    <string name="button_add_route">ADD</string>
+
+    <string name="title_activity_route">RouteActivity</string>
 </resources>

@@ -20,4 +20,6 @@ public class RouteActivity extends AppCompatActivity {
         // Enable the Up button
         ab.setDisplayHomeAsUpEnabled(true);
     }
+
+
 }

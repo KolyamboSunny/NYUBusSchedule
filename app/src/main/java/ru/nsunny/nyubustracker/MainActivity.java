@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -25,6 +26,7 @@ import android.widget.TimePicker;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 import ru.nsunny.nyubustracker.entities.GoogleSheetsParser;
 import ru.nsunny.nyubustracker.entities.Route;
@@ -40,7 +42,8 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
     BusListAdapter busListAdapter;
     ScheduleTime timeToArrive;
     ScheduleTime timeToLeave;
-    Schedule schedule;
+    Map<String,Schedule> schedules;
+    String selectedScheduleKey;
 
     List<Route> routes;
     Route selectedRoute;
@@ -49,8 +52,11 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        GoogleSheetsParser p = new GoogleSheetsParser();
+        this.schedules = p.parseBusSchedule();
+
         setContentView(R.layout.activity_main);
-        ScheduleTime timeToArrive = new ScheduleTime("-");
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
@@ -70,12 +76,16 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
         selectedRoute = routes.get(1);
 
         spinnerAdapter = new RouteSpinnerAdapter(this, routes);
-        Spinner spinner = (Spinner) findViewById(R.id.spinner_route);
-        spinner.setAdapter(spinnerAdapter);
-        spinner.setOnItemSelectedListener(this);
+        Spinner spinner_route = (Spinner) findViewById(R.id.spinner_route);
+        spinner_route.setAdapter(spinnerAdapter);
+        spinner_route.setOnItemSelectedListener(this);
 
-        GoogleSheetsParser p = new GoogleSheetsParser();
-        this.schedule = p.parseBusSchedule().get(1);
+        Spinner spinner_day = (Spinner) findViewById(R.id.spinner_day);
+        String[] scheduleKeys = this.schedules.keySet().toArray(new String[0]);
+        this.selectedScheduleKey = scheduleKeys[0];
+        ArrayAdapter<String> scheduleKeyAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,scheduleKeys );
+        spinner_day.setAdapter(scheduleKeyAdapter);
+        spinner_day.setOnItemSelectedListener(this);
     }
 
     @Override
@@ -103,6 +113,8 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
 
         updateSelectedLeaveTime(currentTime,true);
     }
+
+
 
     //dealing with the menu on top of the screen
     @Override
@@ -138,7 +150,11 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
     }
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-        this.selectedRoute = routes.get(pos);
+        if(parent.getId()==R.id.spinner_route)
+            this.selectedRoute = routes.get(pos);
+        if(parent.getId()==R.id.spinner_day)
+            this.selectedScheduleKey = parent.getItemAtPosition(pos).toString();
+
         if(this.timeToArrive.isEmpty && !this.timeToLeave.isEmpty){
             updateBusListByLeaveTime();
         }
@@ -148,7 +164,10 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
     }
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
-        this.selectedRoute = routes.get(0);
+        if(parent.getId()==R.id.spinner_route)
+            this.selectedRoute = routes.get(0);
+        if(parent.getId()==R.id.spinner_day)
+            this.selectedScheduleKey = parent.getItemAtPosition(0).toString();
     }
 
 
@@ -168,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
     private void updateBusListByArrivalTime(){
         String src = selectedRoute.getSrc();
         String dest = selectedRoute.getDest();
-        List<List<ScheduleTime[]>> times = schedule.getTimesByArrivalTime(src,dest,timeToArrive,3,1);
+        List<List<ScheduleTime[]>> times = schedules.get(selectedScheduleKey).getTimesByArrivalTime(src,dest,timeToArrive,3,1);
 
         updateBusListView(times);
     }
@@ -191,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
 
         String src = selectedRoute.getSrc();
         String dest = selectedRoute.getDest();
-        List<List<ScheduleTime[]>> times = schedule.getTimesByLeaveTime(src,dest,timeToLeave,2,4);
+        List<List<ScheduleTime[]>> times = schedules.get(selectedScheduleKey).getTimesByLeaveTime(src,dest,timeToLeave,2,4);
 
         updateBusListView(times);
     }

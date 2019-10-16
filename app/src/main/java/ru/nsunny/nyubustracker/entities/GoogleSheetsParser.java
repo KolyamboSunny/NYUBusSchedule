@@ -1,18 +1,23 @@
 package ru.nsunny.nyubustracker.entities;
 
-import com.google.api.client.http.HttpTransport;
+import android.util.Log;
+
 import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-
 import com.google.api.services.sheets.v4.Sheets;
-import com.google.api.services.sheets.v4.model.*;
+import com.google.api.services.sheets.v4.model.ValueRange;
 
 import java.io.IOException;
-import java.util.concurrent.*;
-import java.util.*;
-
-import android.util.Log;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 
 import ru.nsunny.nyubustracker.Config;
 
@@ -28,16 +33,16 @@ public class GoogleSheetsParser {
                 .build();
     }
 
-    public List<Schedule> parseBusSchedule(){
+    public Map<String,Schedule> parseBusSchedule(){
         String sheet_mn_th = "Mon-Thurs";
         String sheet_fri = "Fri";
         String sheet_wk = "Weekend";
 
-        List<Schedule> result = new ArrayList<Schedule>();
+        Map<String,Schedule> result = new HashMap<>();
         try {
-            result.add(parseScheduleSheet(requestBusTable(sheet_mn_th),"RouteA_"+sheet_mn_th));
-            result.add(parseScheduleSheet(requestBusTable(sheet_fri),"RouteA_"+sheet_fri));
-            result.add(parseScheduleSheet(requestBusTable(sheet_wk),"RouteA_"+sheet_wk));
+            result.put(sheet_mn_th,parseScheduleSheet(requestBusTable(sheet_mn_th),"RouteA_"+sheet_mn_th));
+            result.put(sheet_fri,parseScheduleSheet(requestBusTable(sheet_fri),"RouteA_"+sheet_fri));
+            result.put(sheet_wk,parseScheduleSheet(requestBusTable(sheet_wk),"RouteA_"+sheet_wk));
 
         }catch (Exception e){
             Log.d("FAILED.","Could not retrieve sheet from Google Sheets",e);

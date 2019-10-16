@@ -70,8 +70,8 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
         //listView.setAdapter(busListAdapter);
 
         routes = new ArrayList<Route>();
-        routes.add(new Route("To Tandon","715 Broadway","6 Metrotech Arrival"));
-        routes.add(new Route("From Tandon","6 Metrotech Departure","715 Broadway Arrival"));
+        routes.add(new Route("Route A","To Tandon","715 Broadway","6 Metrotech Arrival"));
+        routes.add(new Route("Route A","From Tandon","6 Metrotech Departure","715 Broadway Arrival"));
         routes.get(0).setLinkedRoute(routes.get(1));
         selectedRoute = routes.get(1);
 
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
                 return true;
 
             case R.id.action_routes:
-                Intent intent = new Intent(this, RouteActivity.class);
+                Intent intent = new Intent(this, RoutesActivity.class);
                 startActivity(intent);
                 return true;
 

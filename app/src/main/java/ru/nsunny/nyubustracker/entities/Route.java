@@ -9,6 +9,14 @@ public class Route {
         this.name = name;
     }
 
+    private String universityRouteName;
+    public String getUniversityRouteName() {
+        return universityRouteName;
+    }
+    public void setUniversityRouteName(String universityRouteName) {
+        this.universityRouteName = universityRouteName;
+    }
+
     private String src;
     public String getSrc() {
         return src;
@@ -35,13 +43,14 @@ public class Route {
             linkedRoute.setLinkedRoute(this);
     }
 
-    public Route(String name, String src, String dest){
+    public Route(String universityRouteName,String name, String src, String dest){
+        this.universityRouteName = universityRouteName;
         this.name = name;
         this.src = src;
         this.dest = dest;
     }
-    public Route(String name, String src, String dest, Route linkedRoute){
-        this(name,src,dest);
+    public Route(String universityRouteName,String name, String src, String dest, Route linkedRoute){
+        this(universityRouteName,name,src,dest);
         this.setLinkedRoute(linkedRoute);
     }
 }

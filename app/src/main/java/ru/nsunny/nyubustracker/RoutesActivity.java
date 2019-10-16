@@ -1,11 +1,13 @@
 package ru.nsunny.nyubustracker;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 
-public class RouteActivity extends AppCompatActivity {
+public class RoutesActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,6 +21,11 @@ public class RouteActivity extends AppCompatActivity {
         ActionBar ab = getSupportActionBar();
         // Enable the Up button
         ab.setDisplayHomeAsUpEnabled(true);
+    }
+
+    public void onAddRouteClick(View view){
+        Intent intent = new Intent(this, AddRouteActivity.class);
+        startActivity(intent);
     }
 
 

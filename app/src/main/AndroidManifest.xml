@@ -11,13 +11,23 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".RouteActivity"
-            android:parentActivityName="ru.nsunny.nyubustracker.MainActivity"
-            >
+        <activity android:name=".AddRouteActivity">
+            android:parentActivityName=".RoutesActivity">
+
             <!-- Parent activity meta-data to support API level 4+ -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="ru.nsunny.nyubustracker.MainActivity" /></activity>
+                android:value="ru.nsunny.nyubustracker.RoutesActivity" />
+        </activity>
+        <activity
+            android:name=".RoutesActivity"
+            android:parentActivityName=".MainActivity">
+
+            <!-- Parent activity meta-data to support API level 4+ -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ru.nsunny.nyubustracker.MainActivity" />
+        </activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

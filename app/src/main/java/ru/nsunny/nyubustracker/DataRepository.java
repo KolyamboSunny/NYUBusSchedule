@@ -3,19 +3,27 @@ package ru.nsunny.nyubustracker;
 import android.app.Application;
 import android.os.AsyncTask;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
+import ru.nsunny.nyubustracker.entities.Route;
+import ru.nsunny.nyubustracker.entities.RouteRoomDatabase;
 import ru.nsunny.nyubustracker.entities.Trip;
 import ru.nsunny.nyubustracker.entities.TripDao;
-import ru.nsunny.nyubustracker.entities.RouteRoomDatabase;
 
 public class DataRepository {
     private TripDao tripDao;
     private LiveData<List<Trip>> allRoutes;
-    LiveData<List<Trip>> getAllRoutes(){
+    LiveData<List<Trip>> getAllTrips(){
         return allRoutes;
     }
+
+    public final static List<Route> knownRoutes = new ArrayList<Route>(){{
+        add(new Route("Route A", "1jlRme7S0vBssLcbZlQTjP5QrHtV0Cj02jMydXN_7E2I"));
+        add(new Route("Route B", "1RFcpF009PyBT-E-FlfidOWe0Zi5n2mVD-dk988QiSoM"));
+    }};
+
 
     DataRepository(Application app){
         RouteRoomDatabase db = RouteRoomDatabase.getDatabase(app);

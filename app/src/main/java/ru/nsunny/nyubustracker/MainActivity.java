@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
 
 
         try {
-            Route routeA = Config.knownRoutes.get(0);
+            Route routeA = DataRepository.knownRoutes.get(0);
             p.populateBusSchedule(routeA);
             this.schedules = routeA.getAllSchedules();
         }catch(Exception e){

@@ -24,7 +24,7 @@ public class RoutesActivity extends AppCompatActivity {
     }
 
     public void onAddRouteClick(View view){
-        Intent intent = new Intent(this, AddRouteActivity.class);
+        Intent intent = new Intent(this, AddTripActivity.class);
         startActivity(intent);
     }
 

@@ -10,17 +10,17 @@ import androidx.room.Query;
 
 
 @Dao
-public interface RouteDao {
+public interface TripDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    void insert(Route route);
+    void insert(Trip trip);
 
-    @Query("DELETE FROM routes_table")
+    @Query("DELETE FROM trips_table")
     void deleteAll();
 
-    @Query("DELETE FROM routes_table WHERE name = :nameToRemove AND universityRouteName=:universityRouteNameToRemove")
+    @Query("DELETE FROM trips_table WHERE name = :nameToRemove AND universityRouteName=:universityRouteNameToRemove")
     void deleteRoute(String nameToRemove,String universityRouteNameToRemove);
 
-    @Query("SELECT * from routes_table ORDER BY universityRouteName ASC")
-    LiveData<List<Route>> getAllRoutes();
+    @Query("SELECT * from trips_table ORDER BY universityRouteName ASC")
+    LiveData<List<Trip>> getAllRoutes();
 
 }

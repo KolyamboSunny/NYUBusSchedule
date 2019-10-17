@@ -1,53 +1,40 @@
 package ru.nsunny.nyubustracker.entities;
 
-import androidx.annotation.NonNull;
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-@Entity(primaryKeys = {"universityRouteName","name"}, tableName = "routes_table")
 public class Route {
-    @NonNull
-    private String name;
-    public String getName() {
-        return name;
+    public final String routeName;
+
+    private final List<String> orderedStops = new ArrayList<String>();
+    public void addStop(String stop){
+        orderedStops.add(stop);
     }
-    public void setName(@NonNull String name) {
-        this.name = name;
+    public void addAllStops(Collection<String> stops){
+        orderedStops.addAll(stops);
+    }
+    public List<String> getOrderedStops(){
+        return new ArrayList<String>(orderedStops);
     }
 
-    @NonNull
-    private String universityRouteName;
-    public String getUniversityRouteName() {
-        return universityRouteName;
+    public final String googleSheetsLink;
+
+    private final Map<String, Schedule> scheduleForDays = new HashMap<>();
+    public void addScheduleForDay(String day, Schedule schedule){
+        scheduleForDays.put(day,schedule);
     }
-    public void setUniversityRouteName(String universityRouteName) {
-        this.universityRouteName = universityRouteName;
+    public Schedule getScheduleForDay(String day){
+        return scheduleForDays.get(day);
+    }
+    public Map<String, Schedule> getAllSchedules(){
+        return new HashMap<String, Schedule>(scheduleForDays);
     }
 
-    @ColumnInfo(name="srcBusStop")
-    @NonNull
-    private String src;
-    public String getSrc() {
-        return src;
-    }
-    public void setSrc(String src) {
-        this.src = src;
-    }
-
-    @ColumnInfo(name="destBusStop")
-    @NonNull
-    private String dest;
-    public String getDest() {
-        return dest;
-    }
-    public void setDest(String dest) {
-        this.dest = dest;
-    }
-
-    public Route(@NonNull String universityRouteName,@NonNull String name,@NonNull String src,@NonNull String dest){
-        this.universityRouteName = universityRouteName;
-        this.name = name;
-        this.src = src;
-        this.dest = dest;
+    public Route(String name, String googleLink){
+        this.routeName = name;
+        this.googleSheetsLink = googleLink;
     }
 }

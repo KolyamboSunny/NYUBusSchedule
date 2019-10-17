@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,6 +33,7 @@ import ru.nsunny.nyubustracker.entities.GoogleSheetsParser;
 import ru.nsunny.nyubustracker.entities.Route;
 import ru.nsunny.nyubustracker.entities.Schedule;
 import ru.nsunny.nyubustracker.entities.ScheduleTime;
+import ru.nsunny.nyubustracker.entities.Trip;
 
 
 public class MainActivity extends AppCompatActivity implements android.widget.AdapterView.OnItemSelectedListener{
@@ -45,8 +47,8 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
     Map<String,Schedule> schedules;
     String selectedScheduleKey;
 
-    List<Route> routes;
-    Route selectedRoute;
+    List<Trip> trips;
+    Trip selectedTrip;
     RouteSpinnerAdapter spinnerAdapter;
 
     @Override
@@ -54,7 +56,15 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
         super.onCreate(savedInstanceState);
 
         GoogleSheetsParser p = new GoogleSheetsParser();
-        this.schedules = p.parseBusSchedule();
+
+
+        try {
+            Route routeA = Config.knownRoutes.get(0);
+            p.populateBusSchedule(routeA);
+            this.schedules = routeA.getAllSchedules();
+        }catch(Exception e){
+            Log.d("FAILED.","Could not retrieve sheet from Google Sheets");
+        }
 
         setContentView(R.layout.activity_main);
 
@@ -69,12 +79,12 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
         //ListView listView = (ListView) findViewById(R.id.list_busesOutput);
         //listView.setAdapter(busListAdapter);
 
-        routes = new ArrayList<Route>();
-        routes.add(new Route("Route A","To Tandon","715 Broadway","6 Metrotech Arrival"));
-        routes.add(new Route("Route A","From Tandon","6 Metrotech Departure","715 Broadway Arrival"));
-        selectedRoute = routes.get(1);
+        trips = new ArrayList<Trip>();
+        trips.add(new Trip("Trip A","To Tandon","715 Broadway","6 Metrotech Arrival"));
+        trips.add(new Trip("Trip A","From Tandon","6 Metrotech Departure","715 Broadway Arrival"));
+        selectedTrip = trips.get(1);
 
-        spinnerAdapter = new RouteSpinnerAdapter(this, routes);
+        spinnerAdapter = new RouteSpinnerAdapter(this, trips);
         Spinner spinner_route = (Spinner) findViewById(R.id.spinner_route);
         spinner_route.setAdapter(spinnerAdapter);
         spinner_route.setOnItemSelectedListener(this);
@@ -143,19 +153,19 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
 
     public synchronized void onReverseClick(View view){
 
-        int routeIndex = routes.indexOf(selectedRoute);
+        int routeIndex = trips.indexOf(selectedTrip);
         routeIndex++;
-        if(routeIndex== routes.size())
+        if(routeIndex== trips.size())
             routeIndex=0;
-        this.selectedRoute = this.routes.get(routeIndex);
+        this.selectedTrip = this.trips.get(routeIndex);
         Spinner spinner = (Spinner) findViewById(R.id.spinner_route);
-        spinner.setSelection(routes.indexOf(selectedRoute));
+        spinner.setSelection(trips.indexOf(selectedTrip));
         busListAdapter.clearTimePairs();
     }
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         if(parent.getId()==R.id.spinner_route)
-            this.selectedRoute = routes.get(pos);
+            this.selectedTrip = trips.get(pos);
         if(parent.getId()==R.id.spinner_day)
             this.selectedScheduleKey = parent.getItemAtPosition(pos).toString();
 
@@ -169,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
         if(parent.getId()==R.id.spinner_route)
-            this.selectedRoute = routes.get(0);
+            this.selectedTrip = trips.get(0);
         if(parent.getId()==R.id.spinner_day)
             this.selectedScheduleKey = parent.getItemAtPosition(0).toString();
     }
@@ -189,8 +199,8 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
         updateBusListByArrivalTime();
     }
     private void updateBusListByArrivalTime(){
-        String src = selectedRoute.getSrc();
-        String dest = selectedRoute.getDest();
+        String src = selectedTrip.getSrc();
+        String dest = selectedTrip.getDest();
         List<List<ScheduleTime[]>> times = schedules.get(selectedScheduleKey).getTimesByArrivalTime(src,dest,timeToArrive,3,1);
 
         updateBusListView(times);
@@ -212,8 +222,8 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
     }
     private void updateBusListByLeaveTime(){
 
-        String src = selectedRoute.getSrc();
-        String dest = selectedRoute.getDest();
+        String src = selectedTrip.getSrc();
+        String dest = selectedTrip.getDest();
         List<List<ScheduleTime[]>> times = schedules.get(selectedScheduleKey).getTimesByLeaveTime(src,dest,timeToLeave,2,4);
 
         updateBusListView(times);
@@ -233,24 +243,24 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
     }
 
     private class RouteSpinnerAdapter extends BaseAdapter {
-        private List<Route> routes;
+        private List<Trip> trips;
         private Context context;
         private LayoutInflater inflater;
 
 
-        public RouteSpinnerAdapter(Context context, List<Route> routes){
-            this.routes = routes;
+        public RouteSpinnerAdapter(Context context, List<Trip> trips){
+            this.trips = trips;
             this.context = context;
             this.inflater = (LayoutInflater.from(context));
         }
         @Override
         public int getCount(){
-            return routes.size();
+            return trips.size();
         }
 
         @Override
         public Object getItem(int position) {
-            return routes.get(position);
+            return trips.get(position);
         }
 
         @Override
@@ -261,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
         public View getView(int position, View convertView, ViewGroup parent) {
             convertView = inflater.inflate(R.layout.route_list_item, null);
             TextView names = (TextView) convertView.findViewById(R.id.text_routeName);
-            names.setText(routes.get(position).getName());
+            names.setText(trips.get(position).getName());
             return convertView;
         }
     }

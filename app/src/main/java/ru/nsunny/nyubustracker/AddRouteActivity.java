@@ -1,11 +1,32 @@
 package ru.nsunny.nyubustracker;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.Spinner;
+
+import java.util.List;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 
 public class AddRouteActivity extends AppCompatActivity {
+
+    DataRepository dataRepository;
+    Spinner nyuRouteSpinner;
+
+    List<String> nyuRoutes;
+
+    private void setDefaultData(){
+        nyuRoutes.add("Route A");
+        nyuRoutes.add("Route B");
+        nyuRoutes.add("Route C");
+        nyuRoutes.add("Route E");
+        nyuRoutes.add("Route F");
+        nyuRoutes.add("Route G");
+        nyuRoutes.add("Route W");
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,5 +40,17 @@ public class AddRouteActivity extends AppCompatActivity {
         ActionBar ab = getSupportActionBar();
         // Enable the Up button
         ab.setDisplayHomeAsUpEnabled(true);
+
+        dataRepository = new DataRepository(getApplication());
+
+        this.nyuRouteSpinner = (Spinner)findViewById(R.id.spinner_nyu_route);
+
+    }
+
+    public void addRouteClick(View view){
+
+
+        //Route route = new Route();
+        //this.dataRepository.insertRoute();
     }
 }

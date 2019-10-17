@@ -5,9 +5,6 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -28,6 +25,9 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.DialogFragment;
 import ru.nsunny.nyubustracker.entities.GoogleSheetsParser;
 import ru.nsunny.nyubustracker.entities.Route;
 import ru.nsunny.nyubustracker.entities.Schedule;
@@ -72,7 +72,6 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
         routes = new ArrayList<Route>();
         routes.add(new Route("Route A","To Tandon","715 Broadway","6 Metrotech Arrival"));
         routes.add(new Route("Route A","From Tandon","6 Metrotech Departure","715 Broadway Arrival"));
-        routes.get(0).setLinkedRoute(routes.get(1));
         selectedRoute = routes.get(1);
 
         spinnerAdapter = new RouteSpinnerAdapter(this, routes);
@@ -143,7 +142,12 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
     }
 
     public synchronized void onReverseClick(View view){
-        this.selectedRoute = this.selectedRoute.getLinkedRoute();
+
+        int routeIndex = routes.indexOf(selectedRoute);
+        routeIndex++;
+        if(routeIndex== routes.size())
+            routeIndex=0;
+        this.selectedRoute = this.routes.get(routeIndex);
         Spinner spinner = (Spinner) findViewById(R.id.spinner_route);
         spinner.setSelection(routes.indexOf(selectedRoute));
         busListAdapter.clearTimePairs();

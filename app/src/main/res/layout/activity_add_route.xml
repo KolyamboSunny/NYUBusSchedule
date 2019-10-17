@@ -51,7 +51,7 @@
         app:layout_constraintTop_toTopOf="@+id/spinner_stop_src"
         app:layout_constraintVertical_bias="1.0" />
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"

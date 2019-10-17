@@ -11,7 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".AddRouteActivity">
+        <activity android:name=".AddRouteActivity"
             android:parentActivityName=".RoutesActivity">
 
             <!-- Parent activity meta-data to support API level 4+ -->

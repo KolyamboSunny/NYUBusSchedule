@@ -1,14 +1,21 @@
 package ru.nsunny.nyubustracker.entities;
 
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+
+@Entity(primaryKeys = {"universityRouteName","name"}, tableName = "routes_table")
 public class Route {
+    @NonNull
     private String name;
     public String getName() {
         return name;
     }
-    public void setName(String name) {
+    public void setName(@NonNull String name) {
         this.name = name;
     }
 
+    @NonNull
     private String universityRouteName;
     public String getUniversityRouteName() {
         return universityRouteName;
@@ -17,6 +24,8 @@ public class Route {
         this.universityRouteName = universityRouteName;
     }
 
+    @ColumnInfo(name="srcBusStop")
+    @NonNull
     private String src;
     public String getSrc() {
         return src;
@@ -25,6 +34,8 @@ public class Route {
         this.src = src;
     }
 
+    @ColumnInfo(name="destBusStop")
+    @NonNull
     private String dest;
     public String getDest() {
         return dest;
@@ -33,24 +44,10 @@ public class Route {
         this.dest = dest;
     }
 
-    private Route linkedRoute;
-    public Route getLinkedRoute() {
-        return linkedRoute;
-    }
-    public void setLinkedRoute(Route linkedRoute) {
-        this.linkedRoute = linkedRoute;
-        if(this.linkedRoute.linkedRoute!=this)
-            linkedRoute.setLinkedRoute(this);
-    }
-
-    public Route(String universityRouteName,String name, String src, String dest){
+    public Route(@NonNull String universityRouteName,@NonNull String name,@NonNull String src,@NonNull String dest){
         this.universityRouteName = universityRouteName;
         this.name = name;
         this.src = src;
         this.dest = dest;
-    }
-    public Route(String universityRouteName,String name, String src, String dest, Route linkedRoute){
-        this(universityRouteName,name,src,dest);
-        this.setLinkedRoute(linkedRoute);
     }
 }

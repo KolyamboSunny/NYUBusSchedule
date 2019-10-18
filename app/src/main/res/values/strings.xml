@@ -12,7 +12,7 @@
     <string name="button_time_now">NOW</string>
 
     <string name="label_select_route">Select Route: </string>
-    <string name="label_type_route_name">From stop: </string>
+    <string name="label_type_route_name">Name: </string>
     <string name="label_select_route_src">From stop: </string>
     <string name="label_select_route_dest">To stop: </string>
     <string name="button_save_route">SAVE</string>

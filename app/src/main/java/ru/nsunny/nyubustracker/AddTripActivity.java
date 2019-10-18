@@ -19,6 +19,8 @@ public class AddTripActivity extends AppCompatActivity implements android.widget
 
     //DataRepository dataRepository = new DataRepository(getApplication());
     Route selectedRoute;
+    String selectedSrcStop;
+    String selectedDestStop;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +37,8 @@ public class AddTripActivity extends AppCompatActivity implements android.widget
 
 
         setupNyuRouteSpinner();
+        setupSrcStopSpinner();
+        updateDestStopSpinner();
     }
 
     private void setupNyuRouteSpinner(){
@@ -48,17 +52,37 @@ public class AddTripActivity extends AppCompatActivity implements android.widget
         nyuRouteSpinner.setAdapter(routeNameAdapter);
         nyuRouteSpinner.setOnItemSelectedListener(this);
     }
+    private void setupSrcStopSpinner(){
+        Spinner srcStopSpinner = (Spinner)findViewById(R.id.spinner_stop_src);
+        List<String> stopNames = this.selectedRoute.getOrderedStops();
+        this.selectedSrcStop = stopNames.get(0);
+        ArrayAdapter<String> routeNameAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,stopNames );
+        srcStopSpinner.setAdapter(routeNameAdapter);
+        srcStopSpinner.setOnItemSelectedListener(this);
+    }
+    private void updateDestStopSpinner(){
+        Spinner destStopSpinner = (Spinner)findViewById(R.id.spinner_stop_dest);
+        List<String> stopNames = this.selectedRoute.getOrderedStops();
 
+        int srcStopIndex = stopNames.indexOf(selectedSrcStop);
+        this.selectedDestStop = stopNames.get(srcStopIndex+1);
+        ArrayAdapter<String> routeNameAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,
+                stopNames.subList(srcStopIndex+1,stopNames.size()) );
+        destStopSpinner.setAdapter(routeNameAdapter);
+        destStopSpinner.setOnItemSelectedListener(this);
+    }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         if(parent.getId()==R.id.spinner_nyu_route) {
             List<Route> routes = DataRepository.knownRoutes;
             this.selectedRoute = routes.get(pos);
-        }
-        //if(parent.getId()==R.id.spinner_stop_src)
-        //if(parent.getId()==R.id.spinner_stop_dest)
 
+        }
+        if(parent.getId()==R.id.spinner_stop_src){
+            this.selectedSrcStop = this.selectedRoute.getOrderedStops().get(pos);
+            updateDestStopSpinner();
+        }
     }
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
@@ -66,9 +90,18 @@ public class AddTripActivity extends AppCompatActivity implements android.widget
             List<Route> routes = DataRepository.knownRoutes;
             this.selectedRoute = routes.get(0);
         }
+        if(parent.getId()==R.id.spinner_nyu_route) {
+            this.selectedSrcStop = this.selectedRoute.getOrderedStops().get(0);
+            updateDestStopSpinner();
+        }
+        if(parent.getId()==R.id.spinner_nyu_route) {
+            List<String> stopNames = this.selectedRoute.getOrderedStops();
+            int srcStopIndex = stopNames.indexOf(selectedSrcStop);
+            this.selectedDestStop = stopNames.get(srcStopIndex+1);
+        }
     }
 
-    public void addRouteClick(View view){
+    public void addTripClick(View view){
 
 
         //Trip route = new Trip();

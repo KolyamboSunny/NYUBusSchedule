@@ -12,15 +12,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity android:name=".AddTripActivity"
-            android:parentActivityName=".RoutesActivity">
+            android:parentActivityName=".TripsActivity">
 
             <!-- Parent activity meta-data to support API level 4+ -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="ru.nsunny.nyubustracker.RoutesActivity" />
+                android:value="ru.nsunny.nyubustracker.TripsActivity" />
         </activity>
         <activity
-            android:name=".RoutesActivity"
+            android:name=".TripsActivity"
             android:parentActivityName=".MainActivity">
 
             <!-- Parent activity meta-data to support API level 4+ -->

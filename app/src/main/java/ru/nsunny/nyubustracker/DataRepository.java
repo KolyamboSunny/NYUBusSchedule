@@ -2,42 +2,48 @@ package ru.nsunny.nyubustracker;
 
 import android.app.Application;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 
-import androidx.lifecycle.LiveData;
 import ru.nsunny.nyubustracker.entities.Route;
-import ru.nsunny.nyubustracker.entities.RouteRoomDatabase;
 import ru.nsunny.nyubustracker.entities.Trip;
 import ru.nsunny.nyubustracker.entities.TripDao;
 
 public class DataRepository {
-    private TripDao tripDao;
-    private LiveData<List<Trip>> allRoutes;
-    LiveData<List<Trip>> getAllTrips(){
+
+    private static TripDao tripDao;
+    DatabaseHandler db;
+
+    private List<Trip> allRoutes;
+    List<Trip> getAllTrips(){
+        try {
+            FutureTask<List<Trip>> request = new FutureTask(new allTripsDbRetriever());
+            Thread t = new Thread(request);
+            t.start();
+
+            this.allRoutes = request.get();
+        }catch(Exception e){
+            Log.d("FAILED","Could not retrieve trips from database",e);
+        }
         return allRoutes;
     }
-
-    public final static List<Route> knownRoutes = new ArrayList<Route>(){{
-        add(new Route("Route A", "1jlRme7S0vBssLcbZlQTjP5QrHtV0Cj02jMydXN_7E2I"));
-        add(new Route("Route B", "1RFcpF009PyBT-E-FlfidOWe0Zi5n2mVD-dk988QiSoM"));
-    }};
-
-
-    DataRepository(Application app){
-        RouteRoomDatabase db = RouteRoomDatabase.getDatabase(app);
-        tripDao = db.routeDao();
-        allRoutes = tripDao.getAllRoutes();
+    private static class allTripsDbRetriever implements Callable{
+        @Override
+        public List<Trip> call(){
+            return tripDao.getAllTrips();
+        }
     }
 
-    public void insertRoute(Trip trip){
-        new insertAsyncTask(tripDao).execute(trip);
+    public void insertTrip(Trip trip){
+        new insertTripAsyncTask(tripDao).execute(trip);
     }
-
-    private static class insertAsyncTask extends AsyncTask<Trip,Void,Void>{
+    private static class insertTripAsyncTask extends AsyncTask<Trip,Void,Void>{
         private TripDao asyncTripDao;
-        insertAsyncTask(TripDao tripDao){
+        insertTripAsyncTask(TripDao tripDao){
             asyncTripDao = tripDao;
         }
 
@@ -47,4 +53,19 @@ public class DataRepository {
             return null;
         }
     }
+
+
+    public final static List<Route> knownRoutes = new ArrayList<Route>(){{
+        add(new Route("Route A", "1jlRme7S0vBssLcbZlQTjP5QrHtV0Cj02jMydXN_7E2I"));
+        add(new Route("Route B", "1RFcpF009PyBT-E-FlfidOWe0Zi5n2mVD-dk988QiSoM"));
+    }};
+
+
+    DataRepository(Application app){
+        this.db = DatabaseHandler.getDatabase(app);
+        tripDao = db.tripDao();
+    }
+
+
+
 }

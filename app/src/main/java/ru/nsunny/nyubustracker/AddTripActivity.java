@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import ru.nsunny.nyubustracker.entities.Route;
+import ru.nsunny.nyubustracker.entities.Trip;
 
 
 public class AddTripActivity extends AppCompatActivity implements android.widget.AdapterView.OnItemSelectedListener{
@@ -102,9 +104,11 @@ public class AddTripActivity extends AppCompatActivity implements android.widget
     }
 
     public void addTripClick(View view){
-
-
-        //Trip route = new Trip();
-        //this.dataRepository.insertRoute();
+        EditText nameInput = (EditText)findViewById(R.id.text_input_route_name);
+        String tripName = nameInput.getText().toString();
+        Trip trip = new Trip(selectedRoute.routeName,tripName,selectedSrcStop,selectedDestStop);
+        DataRepository repo = new DataRepository(getApplication());
+        repo.insertTrip(trip);
+        finish();
     }
 }

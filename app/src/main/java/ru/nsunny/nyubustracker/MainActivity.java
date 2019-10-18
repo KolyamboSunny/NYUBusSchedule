@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
                 return true;
 
             case R.id.action_routes:
-                Intent intent = new Intent(this, RoutesActivity.class);
+                Intent intent = new Intent(this, TripsActivity.class);
                 startActivity(intent);
                 return true;
 

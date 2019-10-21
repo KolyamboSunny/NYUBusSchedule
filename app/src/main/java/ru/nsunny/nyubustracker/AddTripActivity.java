@@ -39,7 +39,7 @@ public class AddTripActivity extends AppCompatActivity implements android.widget
 
 
         setupNyuRouteSpinner();
-        setupSrcStopSpinner();
+        updateSrcStopSpinner();
         updateDestStopSpinner();
     }
 
@@ -54,7 +54,7 @@ public class AddTripActivity extends AppCompatActivity implements android.widget
         nyuRouteSpinner.setAdapter(routeNameAdapter);
         nyuRouteSpinner.setOnItemSelectedListener(this);
     }
-    private void setupSrcStopSpinner(){
+    private void updateSrcStopSpinner(){
         Spinner srcStopSpinner = (Spinner)findViewById(R.id.spinner_stop_src);
         List<String> stopNames = this.selectedRoute.getOrderedStops();
         this.selectedSrcStop = stopNames.get(0);
@@ -79,7 +79,7 @@ public class AddTripActivity extends AppCompatActivity implements android.widget
         if(parent.getId()==R.id.spinner_nyu_route) {
             List<Route> routes = DataRepository.knownRoutes;
             this.selectedRoute = routes.get(pos);
-
+            updateSrcStopSpinner();
         }
         if(parent.getId()==R.id.spinner_stop_src){
             this.selectedSrcStop = this.selectedRoute.getOrderedStops().get(pos);

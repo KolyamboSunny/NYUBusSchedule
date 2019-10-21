@@ -29,6 +29,11 @@ public class GoogleSheetsParser {
         JsonFactory factory = JacksonFactory.getDefaultInstance();
     }
 
+    public void populateBusSchedule(List<Route> nyuRoutes) throws Exception{
+        for(Route route: nyuRoutes){
+            populateBusSchedule(route);
+        }
+    }
     public void populateBusSchedule(Route nyuRoute) throws Exception{
         // normally sheet names represents day when the schedule is active
         List<String> sheetNames = requestSheetNames(nyuRoute.googleSheetsLink);

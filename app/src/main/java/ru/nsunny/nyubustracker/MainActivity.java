@@ -59,9 +59,7 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
 
 
         try {
-            Route routeA = DataRepository.knownRoutes.get(0);
-            p.populateBusSchedule(routeA);
-            this.schedules = routeA.getAllSchedules();
+            p.populateBusSchedule(DataRepository.knownRoutes);
         }catch(Exception e){
             Log.d("FAILED.","Could not retrieve sheet from Google Sheets");
         }
@@ -71,23 +69,28 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
 
-        //mainOutputTextView = (TextView)findViewById(R.id.text_output);
         button_timeToArrive = (Button)findViewById(R.id.button_timeToArrive);
         button_timeToLeave = (Button)findViewById(R.id.button_timeToLeave);
 
+        DataRepository repository = new DataRepository(getApplication());
+        this.trips = repository.getAllTrips();
+        this.selectedTrip = trips.get(0);
 
-        //ListView listView = (ListView) findViewById(R.id.list_busesOutput);
-        //listView.setAdapter(busListAdapter);
 
-        trips = new ArrayList<Trip>();
-        trips.add(new Trip("Trip A","To Tandon","715 Broadway","6 Metrotech Arrival"));
-        trips.add(new Trip("Trip A","From Tandon","6 Metrotech Departure","715 Broadway Arrival"));
-        selectedTrip = trips.get(1);
 
         spinnerAdapter = new RouteSpinnerAdapter(this, trips);
         Spinner spinner_route = (Spinner) findViewById(R.id.spinner_route);
         spinner_route.setAdapter(spinnerAdapter);
         spinner_route.setOnItemSelectedListener(this);
+
+        updateScheduleSpinner();
+    }
+    private void updateScheduleSpinner(){
+        String selectedRouteName = this.selectedTrip.getUniversityRouteName();
+        for (Route route: DataRepository.knownRoutes){
+            if (route.routeName.equals(selectedRouteName))
+                this.schedules = route.getAllSchedules();
+        }
 
         Spinner spinner_day = (Spinner) findViewById(R.id.spinner_day);
         String[] scheduleKeys = this.schedules.keySet().toArray(new String[0]);
@@ -96,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
         spinner_day.setAdapter(scheduleKeyAdapter);
         spinner_day.setOnItemSelectedListener(this);
     }
+
 
     @Override
     protected void onStart(){
@@ -142,6 +146,8 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
             case R.id.action_routes:
                 Intent intent = new Intent(this, TripsActivity.class);
                 startActivity(intent);
+
+
                 return true;
 
             default:
@@ -164,11 +170,12 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
     }
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-        if(parent.getId()==R.id.spinner_route)
+        if(parent.getId()==R.id.spinner_route) {
             this.selectedTrip = trips.get(pos);
+            updateScheduleSpinner();
+        }
         if(parent.getId()==R.id.spinner_day)
             this.selectedScheduleKey = parent.getItemAtPosition(pos).toString();
-
         if(this.timeToArrive.isEmpty && !this.timeToLeave.isEmpty){
             updateBusListByLeaveTime();
         }

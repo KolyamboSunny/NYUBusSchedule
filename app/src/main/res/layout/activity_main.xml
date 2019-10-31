@@ -23,11 +23,12 @@
         android:id="@+id/button_timeToArrive"
         android:layout_width="118dp"
         android:layout_height="63dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:layout_marginEnd="20dp"
         android:onClick="onTimeToArriveClick"
         android:padding="10dip"
         android:text="arrive by"
+        android:theme="@style/AppTheme.HighlightedButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_timeToLeave" />
 
@@ -37,7 +38,7 @@
         android:layout_height="56dp"
         android:layout_centerHorizontal="true"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/spinner_day" />
 
@@ -47,7 +48,7 @@
         android:layout_height="56dp"
         android:layout_centerHorizontal="true"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_timeToArrive" />
 
@@ -85,10 +86,10 @@
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:text="@string/header_leave_at"
-        app:layout_constraintBottom_toBottomOf="@+id/button2"
-        app:layout_constraintEnd_toStartOf="@+id/button2"
+        app:layout_constraintBottom_toBottomOf="@+id/button_leave_now"
+        app:layout_constraintEnd_toStartOf="@+id/button_leave_now"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/button2" />
+        app:layout_constraintTop_toTopOf="@+id/button_leave_now" />
 
     <TextView
         android:id="@+id/textView3"
@@ -108,7 +109,7 @@
         android:layout_width="118dp"
         android:layout_height="63dp"
 
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
         android:onClick="onTimeToLeaveClick"
         android:padding="10dip"
@@ -117,7 +118,8 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/button_leave_now"
+        android:theme="@style/AppTheme.HighlightedButton"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_marginEnd="10dp"

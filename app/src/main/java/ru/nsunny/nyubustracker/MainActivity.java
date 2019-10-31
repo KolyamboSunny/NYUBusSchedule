@@ -74,16 +74,19 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
 
         DataRepository repository = new DataRepository(getApplication());
         this.trips = repository.getAllTrips();
-        this.selectedTrip = trips.get(0);
-
-
+        if(this.trips.size()==0){
+            Intent intent = new Intent(this, TripsActivity.class);
+            startActivity(intent);
+        }
+        else{
+            this.selectedTrip = trips.get(0);
+            updateScheduleSpinner();
+        }
 
         spinnerAdapter = new RouteSpinnerAdapter(this, trips);
         Spinner spinner_route = (Spinner) findViewById(R.id.spinner_route);
         spinner_route.setAdapter(spinnerAdapter);
         spinner_route.setOnItemSelectedListener(this);
-
-        updateScheduleSpinner();
     }
     private void updateScheduleSpinner(){
         String selectedRouteName = this.selectedTrip.getUniversityRouteName();
@@ -103,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
 
     @Override
     protected void onStart(){
+
         super.onStart();
         Calendar calendar = Calendar.getInstance();
         int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -112,7 +116,21 @@ public class MainActivity extends AppCompatActivity implements android.widget.Ad
         this.timeToLeave = currentTime;
         this.timeToArrive = new ScheduleTime("-");
 
-        updateSelectedLeaveTime(currentTime,true);
+        DataRepository repository = new DataRepository(getApplication());
+        this.trips = repository.getAllTrips();
+        if(this.trips.size()==0){
+            Intent intent = new Intent(this, TripsActivity.class);
+            startActivity(intent);
+        }
+        else{
+            if(this.selectedTrip == null) {
+                this.selectedTrip = trips.get(0);
+                updateScheduleSpinner();
+            }
+
+            updateSelectedLeaveTime(currentTime,true);
+        }
+
     }
     public void onLeaveNowClick(View view){
 

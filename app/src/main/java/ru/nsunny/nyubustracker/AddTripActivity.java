@@ -85,6 +85,10 @@ public class AddTripActivity extends AppCompatActivity implements android.widget
             this.selectedSrcStop = this.selectedRoute.getOrderedStops().get(pos);
             updateDestStopSpinner();
         }
+        if(parent.getId()==R.id.spinner_stop_dest){
+            int relativePos =  this.selectedRoute.getOrderedStops().indexOf(this.selectedSrcStop)+1;
+            this.selectedDestStop = this.selectedRoute.getOrderedStops().get(relativePos+pos);
+        }
     }
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
